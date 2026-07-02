@@ -30,4 +30,5 @@ declare module "lucide-react" {
   export const User: Icon;
   export const Moon: Icon;
   export const Sun: Icon;
+  export const Chrome: Icon;
 }
