@@ -1,48 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signUp } from "@/hooks/use-auth";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Briefcase, Loader2 } from "lucide-react";
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const form = new FormData(e.currentTarget);
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
-    const name = form.get("name") as string;
-
-    const { error: signUpError, data } = await signUp(email, password, name);
-
-    if (signUpError) {
-      setError(signUpError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (data?.user?.identities?.length === 0) {
-      setSuccess("Revisa tu correo electrónico para confirmar la cuenta. Luego inicia sesión.");
-      setLoading(false);
-      return;
-    }
-
-    router.push("/onboarding");
-  }
 
   async function handleGoogleRegister() {
     setGoogleLoading(true);
@@ -66,9 +32,9 @@ export default function RegisterPage() {
             <Briefcase className="h-5 w-5 text-blue-600" />
             AI Job Agent
           </Link>
-          <h1 className="mt-6 text-2xl font-bold">Crear cuenta</h1>
+          <h1 className="mt-6 text-2xl font-bold">Vincular cuenta</h1>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Empieza tu búsqueda inteligente de trabajo
+            Conecta con Google para guardar tu progreso
           </p>
         </div>
 
@@ -88,53 +54,15 @@ export default function RegisterPage() {
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
           )}
-          Registrarse con Google
+          Continuar con Google
         </Button>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-zinc-200 dark:border-zinc-800" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-950">o con email</span>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nombre completo</Label>
-            <Input id="name" name="name" type="text" required placeholder="Tu nombre" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required placeholder="tu@email.com" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input id="password" name="password" type="password" required placeholder="Mínimo 8 caracteres" />
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-          )}
-          {success && (
-            <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
-          )}
-
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Crear cuenta"
-            )}
-          </Button>
-        </form>
+        {error && (
+          <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
+        )}
 
         <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-          ¿Ya tienes cuenta?{" "}
-          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-            Inicia sesión
-          </Link>
+          No es necesario iniciar sesión para usar la app
         </p>
       </div>
     </div>

@@ -1,11 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/hooks/use-auth";
-import { Briefcase, LogOut, LayoutDashboard } from "lucide-react";
+import { Briefcase, LogOut } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardLayout({
@@ -13,24 +11,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900" />
-      </div>
-    );
-  }
-
-  if (!user) return null;
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
@@ -41,10 +22,18 @@ export default function DashboardLayout({
             AI Job Agent
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-zinc-500">{user.email}</span>
-            <Button variant="ghost" size="sm" onClick={() => signOut()}>
-              <LogOut className="h-4 w-4" />
-            </Button>
+            {user ? (
+              <>
+                <span className="text-sm text-zinc-500">{user.email}</span>
+                <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <Link href="/login">
+                <Button size="sm" variant="outline">Vincular con Google</Button>
+              </Link>
+            )}
           </div>
         </div>
       </header>

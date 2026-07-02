@@ -16,7 +16,7 @@ export function CTA() {
           está a un clic de distancia.
         </p>
         <div className="mt-8">
-          <Link href="/register">
+          <Link href="/login">
             <Button
               size="lg"
               className="bg-white text-blue-700 hover:bg-blue-50"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -8,19 +8,30 @@ import { Loader2 } from "lucide-react";
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const handled = useRef(false);
 
   useEffect(() => {
-    const supabase = createClient();
+    if (handled.current) return;
+    handled.current = true;
 
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
+    const supabase = createClient();
+    let timeout: ReturnType<typeof setTimeout>;
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        clearTimeout(timeout);
         router.push("/onboarding");
       }
     });
 
-    supabase.auth.exchangeCodeForSession(window.location.href).catch((err) => {
-      setError(err.message ?? "Error al completar la autenticación");
-    });
+    timeout = setTimeout(() => {
+      setError("La autenticación tardó demasiado. Intenta de nuevo.");
+    }, 15000);
+
+    return () => {
+      listener?.subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [router]);
 
   if (error) {

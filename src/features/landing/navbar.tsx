@@ -13,14 +13,8 @@ export function Navbar() {
           AI Job Agent
         </Link>
         <nav className="hidden items-center gap-6 sm:flex">
-          <Link
-            href="/login"
-            className="text-sm text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-          >
-            Iniciar sesión
-          </Link>
-          <Link href="/register">
-            <Button size="sm">Empezar gratis</Button>
+          <Link href="/login">
+            <Button size="sm">Vincular con Google</Button>
           </Link>
         </nav>
       </div>
