@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,10 +27,16 @@ export default function RegisterPage() {
     const password = form.get("password") as string;
     const name = form.get("name") as string;
 
-    const { error: signUpError } = await signUp(email, password, name);
+    const { error: signUpError, data } = await signUp(email, password, name);
 
     if (signUpError) {
       setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (data?.user?.identities?.length === 0) {
+      setSuccess("Revisa tu correo electrónico para confirmar la cuenta. Luego inicia sesión.");
       setLoading(false);
       return;
     }
@@ -40,9 +47,10 @@ export default function RegisterPage() {
   async function handleGoogleRegister() {
     setGoogleLoading(true);
     const supabase = createClient();
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: typeof window !== "undefined" ? `${window.location.origin}/onboarding` : undefined },
+      options: { redirectTo: `${origin}/findjob/auth/callback` },
     });
     if (error) {
       setError(error.message);
@@ -108,6 +116,9 @@ export default function RegisterPage() {
 
           {error && (
             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          )}
+          {success && (
+            <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
           )}
 
           <Button type="submit" className="w-full" disabled={loading}>

@@ -39,9 +39,10 @@ export default function LoginPage() {
   async function handleGoogleLogin() {
     setGoogleLoading(true);
     const supabase = createClient();
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined },
+      options: { redirectTo: `${origin}/findjob/auth/callback` },
     });
     if (error) {
       setError(error.message);
