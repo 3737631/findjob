@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Briefcase } from "lucide-react";
@@ -13,8 +11,8 @@ export function Navbar() {
           AI Job Agent
         </Link>
         <nav className="hidden items-center gap-6 sm:flex">
-          <Link href="/login">
-            <Button size="sm">Vincular con Google</Button>
+          <Link href="/onboarding">
+            <Button size="sm">Empezar gratis</Button>
           </Link>
         </nav>
       </div>

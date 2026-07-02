@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/stores/app-store";
-import { logger } from "@/lib/logger";
+import { callAnthropicJSON } from "@/services/ai/client-browser";
+import { EMAIL_GENERATOR_SYSTEM_PROMPT } from "@/prompts/email-generator";
+import type { Company } from "@/types";
+
+interface GeneratedEmail {
+  subject: string;
+  body: string;
+}
 
 export function useEmails() {
   const [generating, setGenerating] = useState(false);
@@ -16,21 +23,25 @@ export function useEmails() {
     try {
       const match = matches.find((m) => m.company.id === companyId);
       if (!match) throw new Error("Empresa no encontrada");
+      if (!parsedCV) throw new Error("CV no disponible");
 
-      const response = await fetch("/api/email/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cv: parsedCV,
-          company: match.company,
-          matchReason: match.match_reason,
-        }),
-      });
+      const email = await callAnthropicJSON<GeneratedEmail>(
+        EMAIL_GENERATOR_SYSTEM_PROMPT,
+        `Genera un email de presentación personalizado.
 
-      if (!response.ok) throw new Error("Error al generar email");
+DATOS DEL CANDIDATO:
+${JSON.stringify(parsedCV, null, 2)}
 
-      const { data } = await response.json();
-      return data;
+DATOS DE LA EMPRESA:
+${JSON.stringify(match.company, null, 2)}
+
+RAZÓN DEL MATCH:
+${match.match_reason}
+
+Devuelve un objeto JSON con "subject" y "body".`
+      );
+
+      return email;
     } finally {
       setGenerating(false);
     }
@@ -40,23 +51,11 @@ export function useEmails() {
     setSending(true);
 
     try {
-      const response = await fetch("/api/email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ applicationId, to, subject, body }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Error al enviar email");
-      }
-
+      window.open(`mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
       updateApplication(applicationId, {
         status: "sent",
         sent_at: new Date().toISOString(),
       });
-
-      logger.info("Email enviado exitosamente", { applicationId });
       return true;
     } finally {
       setSending(false);

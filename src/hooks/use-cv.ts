@@ -1,8 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useAppStore } from "@/stores/app-store";
+import { callAnthropicJSON } from "@/services/ai/client-browser";
+import { CV_PARSER_SYSTEM_PROMPT } from "@/prompts/cv-parser";
+import type { ParsedCV } from "@/types";
+
+async function extractTextFromPDF(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+  const pages: string[] = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const text = content.items.map((item: any) => item.str).join(" ");
+    pages.push(text);
+  }
+  return pages.join("\n\n");
+}
 
 export function useCV() {
   const [uploading, setUploading] = useState(false);
@@ -13,58 +31,34 @@ export function useCV() {
     setUploading(true);
     setStatus("uploading");
     setProgress(10);
-    setStatusMessage("Subiendo CV...");
+    setStatusMessage("Leyendo PDF...");
 
     try {
-      const supabase = createClient();
-      const user = await supabase.auth.getUser();
+      const cvText = await extractTextFromPDF(file);
 
-      if (!user.data.user) {
-        throw new Error("Usuario no autenticado");
-      }
+      setProgress(40);
+      setStatusMessage("Analizando CV con IA...");
 
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.data.user.id}/${Date.now()}.${fileExt}`;
+      const parsed = await callAnthropicJSON<ParsedCV>(
+        CV_PARSER_SYSTEM_PROMPT,
+        `Analiza el siguiente CV y extrae la información estructurada:
 
-      const { error: uploadError } = await supabase.storage
-        .from("cvs")
-        .upload(filePath, file);
+Nombre del archivo: ${file.name}
 
-      if (uploadError) throw uploadError;
-
-      setProgress(30);
-      setStatusMessage("Analizando CV...");
-
-      const { data: urlData } = supabase.storage
-        .from("cvs")
-        .getPublicUrl(filePath);
-
-      setStatus("parsing");
-      setProgress(50);
-
-      const formData = new FormData();
-      formData.append("filePath", filePath);
-      formData.append("fileUrl", urlData.publicUrl);
-
-      const response = await fetch("/api/cv/parse", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Error al parsear CV");
-      }
-
-      const { data: parsedData } = await response.json();
+Contenido del CV:
+---
+${cvText}
+---
+Devuelve SOLO el JSON con los datos extraídos.`
+      );
 
       setProgress(80);
       setStatusMessage("CV analizado correctamente");
-      setParsedCV(parsedData);
+      setParsedCV(parsed);
       setStatus("complete");
       setProgress(100);
 
-      return parsedData;
+      return parsed;
     } catch (error) {
       setStatus("failed");
       setStatusMessage(

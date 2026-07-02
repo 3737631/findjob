@@ -25,15 +25,10 @@ export function Hero() {
           envía emails personalizados. Todo en un solo lugar.
         </p>
         <div className="mt-10 flex items-center justify-center gap-4">
-          <Link href="/register">
+          <Link href="/onboarding">
             <Button size="lg" className="group">
               Empezar gratis
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </Link>
-          <Link href="/login">
-            <Button variant="outline" size="lg">
-              Iniciar sesión
             </Button>
           </Link>
         </div>
