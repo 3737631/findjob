@@ -2,6 +2,7 @@
 
 import { CVUploadCard } from "@/features/cv/upload-card";
 import { OnboardingForm } from "@/features/onboarding/onboarding-form";
+import { JobSearchCard } from "@/features/jobs/job-search-card";
 import { useAppStore } from "@/stores/app-store";
 
 export default function OnboardingPage() {
@@ -21,6 +22,7 @@ export default function OnboardingPage() {
 
         <div className="space-y-8">
           <CVUploadCard />
+          <JobSearchCard />
           {parsedCV && <OnboardingForm />}
         </div>
       </div>

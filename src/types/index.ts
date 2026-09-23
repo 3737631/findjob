@@ -91,6 +91,16 @@ export interface CompanyMatch {
   relevance_factors: string[];
 }
 
+export interface JobOffer {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  tags: string[];
+  url: string;
+  published_at: string;
+}
+
 export interface Application {
   id: string;
   user_id: string;
