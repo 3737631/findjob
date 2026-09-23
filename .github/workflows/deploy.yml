@@ -31,6 +31,9 @@ jobs:
       - run: npm ci --legacy-peer-deps
 
       - run: npm run build
+        env:
+          NEXT_PUBLIC_GOOGLE_SEARCH_API_KEY: ${{ secrets.GOOGLE_SEARCH_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_SEARCH_CX: ${{ secrets.GOOGLE_SEARCH_CX }}
 
       - uses: actions/configure-pages@v4
 

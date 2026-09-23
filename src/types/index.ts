@@ -99,6 +99,7 @@ export interface JobOffer {
   tags: string[];
   url: string;
   published_at: string;
+  description?: string;
 }
 
 export interface Application {

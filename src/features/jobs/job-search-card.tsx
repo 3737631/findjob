@@ -122,6 +122,11 @@ export function JobSearchCard() {
                     <p className="mt-1 text-sm text-zinc-500">
                       {job.company}
                     </p>
+                    {job.description && (
+                      <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-zinc-400">
+                        {job.description}
+                      </p>
+                    )}
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                       <Badge variant="secondary" className="gap-1">
                         <MapPin className="h-3 w-3" />
